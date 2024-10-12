@@ -35,12 +35,12 @@
 
 \description{
   The \code{openMSfile} constructor will create a new format-specifc
-  \code{mzR} object, open 'filename' file and all header information is
+  \code{mzR} object by loading the 'filename' file. All header information is
   loaded as a Rcpp module and made accessible through the \code{pwiz}
   slot of the resulting object.
 
   The \code{openIDfile} constructor will create a new format-specifc
-  \code{mzR} object, open 'filename' file and all information is
+  \code{mzR} object by loading the 'filename' file. All information is
   loaded as a Rcpp module. The mzid format is supported throught
   \code{pwiz} backend. Only mzIdentML 1.1 is supported.
 
