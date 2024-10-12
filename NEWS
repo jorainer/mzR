@@ -1,3 +1,8 @@
+CHANGES IN VERSION 2.39.2
+-------------------------
+o Improve openMSfile and openIDfile manual page (contirbuted by
+  rdhale92, PR #299)
+
 CHANGES IN VERSION 2.39.1
 -------------------------
 o Update CV translator, adds support for Astral
