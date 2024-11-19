@@ -8,7 +8,7 @@ Authors@R: c(
     person("Steffen", "Neumann", email="sneumann@ipb-halle.de", role=c("aut","cre")),
     person("Laurent", "Gatto", email="laurent.gatto@uclouvain.be", role=c("aut")),
     person("Qiakng", "Kou", email="qkou@umail.iu.edu", role=c("aut")),
-    person("David","Rauh",email="drauh@ipb-halle.de", role=c("ctb"))
+    person("David","Rauh",email="drauh@ipb-halle.de", role=c("ctb")),
     person("Sascha","Manier",email="sascha.manier@uni-saarland.de", role=c("ctb"))
     )
 Description: mzR provides a unified API to the common file formats and
