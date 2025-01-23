@@ -17,16 +17,37 @@ test_chromatograms2 <- function() {
     f <- proteomics(full.names = TRUE,
                     pattern = "TMT_Erwinia_1uLSike_Top10HCD_isol2_45stepped_60min_01.mzML.gz")
     x <- openMSfile(f, backend = "pwiz")
-    checkIdentical(nChrom(x), 1L)   
+    checkIdentical(nChrom(x), 1L)
     checkIdentical(tic(x), chromatogram(x, 1L))
     checkIdentical(nrow(tic(x)), 7534L)
+}
+
+test_individual_chromatogramHeader <- function() {
+    f <- proteomics(full.names = TRUE, pattern = "MRM")
+    x <- openMSfile(f, backend = "pwiz")
+    tic <- chromatogramHeader(x, 1)
+    tic1 <- chromatogramHeader(x, 1:1)
+    ch <- chromatogramHeader(x, 2)
+    checkEquals(colnames(ch), c("chromatogramId", "chromatogramIndex", "polarity",
+                                "precursorIsolationWindowTargetMZ",
+                                "precursorIsolationWindowLowerOffset",
+                                "precursorIsolationWindowUpperOffset",
+                                "precursorCollisionEnergy",
+                                "productIsolationWindowTargetMZ",
+                                "productIsolationWindowLowerOffset",
+                                "productIsolationWindowUpperOffset"))
+    checkEquals(tic$chromatogramId, "TIC")
+    checkEquals(sum(is.na(ch$precursorIsolationWindowTargetMZ)), 1)
+    checkEquals(sum(is.na(ch$productIsolationWindowTargetMZ)), 1)
+    checkEquals(nrow(ch), 1)
+    close(x)
 }
 
 test_chromatogramHeader <- function() {
     library(mzR)
     library(RUnit)
     library(msdata)
-    
+
     f <- proteomics(full.names = TRUE, pattern = "MRM")
     x <- openMSfile(f)
 
@@ -42,7 +63,7 @@ test_chromatogramHeader <- function() {
                                 "productIsolationWindowUpperOffset"))
     checkEquals(ch$chromatogramId[1], "TIC")
     checkEquals(sum(is.na(ch$precursorIsolationWindowTargetMZ)), 1)
-    checkEquals(sum(is.na(ch$productIsolationWindowTargetMZ)), 1)    
+    checkEquals(sum(is.na(ch$productIsolationWindowTargetMZ)), 1)
     checkEquals(length(chrs), nrow(ch))
     close(x)
 

@@ -192,9 +192,10 @@ setMethod("chromatogramHeader", "mzRpwiz",
               } else {
                   stopifnot(is.numeric(chrom))
                   n <- nChrom(object)
+                  chrom <- as.integer(chrom)
                   if (min(chrom) < 1 || max(chrom) > n)
                       stop("Index out of bound [", 1, ":", n, "]")
-                  chrom <- chrom -1L
+                  chrom <- chrom - 1L
                   res <- object@backend$getChromatogramHeaderInfo(chrom)
               }
               res$chromatogramId <- as.character(res$chromatogramId)
