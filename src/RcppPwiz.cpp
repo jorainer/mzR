@@ -200,7 +200,8 @@ Rcpp::DataFrame RcppPwiz::getScanHeaderInfo (Rcpp::IntegerVector whichScan) {
     Rcpp::NumericVector isolationWindowUpperOffset(N_scans);
     Rcpp::NumericVector scanWindowLowerLimit(N_scans);
     Rcpp::NumericVector scanWindowUpperLimit(N_scans);
-
+    Rcpp::NumericVector electronBeamEnergy(N_scans);
+    
     for (size_t i = 0; i < N_scans; i++) {
       int current_scan = whichScan[i];
       size_t current_index = static_cast<size_t>(current_scan - 1);
@@ -262,6 +263,8 @@ Rcpp::DataFrame RcppPwiz::getScanHeaderInfo (Rcpp::IntegerVector whichScan) {
 	const Precursor& precursor = sp->precursors[0];
 	// collisionEnergy
 	collisionEnergy[i] = precursor.activation.cvParam(MS_collision_energy).valueAs<double>();
+	// electronBeamEnergy - for EAD
+	electronBeamEnergy[i] = precursor.activation.cvParam(MS_electron_beam_energy).value.empty() ? NA_REAL : precursor.activation.cvParam(MS_electron_beam_energy).valueAs<double>();	
 	// precursorScanNum
 	size_t precursorIndex = slp->find(precursor.spectrumID);
 	if (precursorIndex < N) {
@@ -288,6 +291,7 @@ Rcpp::DataFrame RcppPwiz::getScanHeaderInfo (Rcpp::IntegerVector whichScan) {
 	}
       } else {
 	collisionEnergy[i] = NA_REAL;
+	electronBeamEnergy[i] = NA_REAL;
 	precursorScanNum[i] = NA_INTEGER;
 	precursorMZ[i] = NA_REAL;
 	precursorCharge[i] = NA_INTEGER;
@@ -302,7 +306,7 @@ Rcpp::DataFrame RcppPwiz::getScanHeaderInfo (Rcpp::IntegerVector whichScan) {
       }
     }
 
-    Rcpp::List header(31);
+    Rcpp::List header(32);
     std::vector<std::string> names;
     size_t i = 0;
     names.push_back("seqNum");
@@ -367,6 +371,8 @@ Rcpp::DataFrame RcppPwiz::getScanHeaderInfo (Rcpp::IntegerVector whichScan) {
     header[i++] = Rcpp::wrap(scanWindowLowerLimit);
     names.push_back("scanWindowUpperLimit");
     header[i++] = Rcpp::wrap(scanWindowUpperLimit);
+    names.push_back("electronBeamEnergy");
+    header[i++] = Rcpp::wrap(electronBeamEnergy);
     header.attr("names") = names;
 
     return header;

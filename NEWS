@@ -1,3 +1,7 @@
+CHANGES IN VERSION 2.41.2
+-------------------------
+o Report also electron beam energy (MS:1003410) for EAD data.
+
 CHANGES IN VERSION 2.41.1
 -------------------------
 o Fix compilation error with stricter compiler checks
