@@ -20,6 +20,8 @@ test_mzXML <- function() {
     checkTrue(any(colnames(hdr) == "scanWindowUpperLimit"))
     checkTrue(all(!is.na(hdr$scanWindowLowerLimit)))
     checkTrue(all(!is.na(hdr$scanWindowUpperLimit)))
+    checkTrue(any(colnames(hdr) == "electronBeamEnergy"))
+    checkTrue(all(is.na(hdr$electronBeamEnergy)))
     hdr <- header(mzxml,1)
     checkTrue(is.list(hdr))
     hdr <- header(mzxml, 2:3)
