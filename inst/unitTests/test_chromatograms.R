@@ -11,6 +11,8 @@ test_chromatograms1 <- function() {
     checkIdentical(nrow(chromatogram(x, 136L)), 527L)
     checkIdentical(nrow(chromatogram(x, 137L)), 567L)
     checkIdentical(nrow(chromatogram(x, 138L)), 567L)
+    chr <- chromatogram(x, 138L)
+    checkIdentical(colnames(chr), c("rtime", "intensity"))
 }
 
 test_chromatograms2 <- function() {

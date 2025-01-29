@@ -125,9 +125,8 @@
 
   The \code{chromatogram} (\code{chromatograms}) accessors return
   chromatograms for the MS file handle. If a single index is provided,
-  as \code{data.frame} containing the retention time (1st columns) and
-  intensities (2nd column) is returned. The name of the former is always
-  \code{time}, while the latter will depend on the run parameters.
+  as \code{data.frame} containing the retention time (\code{"rtime"},
+  1st column) and intensities (\code{"intensity"}, 2nd column) is returned.
 
   If more than 1 or no chromatogram indices are provided, then a list of
   chromatograms is returned; either those passed as argument or all of
