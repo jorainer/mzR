@@ -84,6 +84,14 @@
     for all chromatograms is returned. 
   }
   
+  \item{drop}{
+    For \code{chromatogram}, \code{chromatograms}: \code{logical(1)}
+    whether the result should always be a \code{list} of
+    \code{data.frame} (\code{drop = FALSE}), even if data from a single
+    chromatogram is requested, or if, in such cases, a \code{data.frame}
+    should be returned (\code{drop = TRUE}, the default).    
+  }
+  
   \item{...}{Other arguments. A \code{scan} parameter can be passed to
     \code{peaks}.}  }
 
