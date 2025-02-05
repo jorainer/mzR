@@ -24,13 +24,14 @@ test_chromatograms2 <- function() {
     close(x)
 }
 
-test_individual_chromatogramHeader <- function() {
+test_chromatogramHeader_indexing <- function() {
     f <- proteomics(full.names = TRUE, pattern = "MRM")
     x <- openMSfile(f, backend = "pwiz")
     tic <- chromatogramHeader(x, 1)
     tic1 <- chromatogramHeader(x, 1:1)
-    ch <- chromatogramHeader(x, 2)
-    checkEquals(colnames(ch), c("chromatogramId", "chromatogramIndex", "polarity",
+    # next chromatogram after TIC (if we assume TIC is always at index 1)
+    ch2 <- chromatogramHeader(x, 2)
+    checkEquals(colnames(ch2), c("chromatogramId", "chromatogramIndex", "polarity",
                                 "precursorIsolationWindowTargetMZ",
                                 "precursorIsolationWindowLowerOffset",
                                 "precursorIsolationWindowUpperOffset",
@@ -39,19 +40,32 @@ test_individual_chromatogramHeader <- function() {
                                 "productIsolationWindowLowerOffset",
                                 "productIsolationWindowUpperOffset"))
     checkEquals(tic$chromatogramId, "TIC")
-    checkEquals(sum(is.na(ch$precursorIsolationWindowTargetMZ)), 1)
-    checkEquals(sum(is.na(ch$productIsolationWindowTargetMZ)), 1)
-    checkEquals(nrow(ch), 1)
+    checkEquals(tic1$chromatogramId, "TIC")
+    checkTrue(!is.na(ch2$precursorIsolationWindowTargetMZ))
+    checkTrue(!is.na(ch2$productIsolationWindowTargetMZ))
+    checkEquals(nrow(ch2), 1)
+    # test index below lower bound should raise error
     tryCatch({
         chromatogramHeader(x, 0)
+        checkTrue(FALSE)
     }, error = function(e) {
-        checkTrue(grepl("Index out of bounds", e$message))
+        checkTrue(grepl("Index out of bound", e$message))
     })
+    # check last chromatogram in bounds
+    ch138 <- chromatogramHeader(x, 138)
+    checkTrue(startsWith(ch138$chromatogramId, "- SRM SIC Q1=808.1 Q3=407.996"))
+    # test index above upper bound should raise error
     tryCatch({
         chromatogramHeader(x, 139)
+        checkTrue(FALSE)
     }, error = function(e) {
-        checkTrue(grepl("Index out of bounds", e$message))
+        checkTrue(grepl("Index out of bound", e$message))
     })
+
+    chrom2 <- chromatogram(x, 2)
+    ch2SafeChromId <- make.names(ch2$chromatogramId)
+    checkEquals(ch2SafeChromId, colnames(chrom2)[2])
+
     close(x)
 }
 
