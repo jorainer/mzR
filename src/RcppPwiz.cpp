@@ -839,7 +839,9 @@ void RcppPwiz::addSpectrumList(MSData& msd,
     spct.defaultArrayLength = spct_mz->data.size();
   }
 }
-
+// get the chromatogram data arrays.
+// whichChrom - 1-based index of chromatogram to extract.
+//
 Rcpp::DataFrame RcppPwiz::getChromatogramsInfo( int whichChrom )
 {
   if (msd != NULL) {
@@ -850,13 +852,14 @@ Rcpp::DataFrame RcppPwiz::getChromatogramsInfo( int whichChrom )
     } else if (clp->size() == 0) {
       Rf_warningcall(R_NilValue, "No available chromatogram info.");
       return Rcpp::DataFrame::create();
-    } else if ( (whichChrom < 0) || (whichChrom > clp->size()) ) {
-      Rprintf("Index whichChrom out of bounds [0 ... %d].\n", (clp->size())-1);
+    } else if ( (whichChrom < 1) || (whichChrom > clp->size()) ) {
+      Rprintf("Index whichChrom out of bounds [1 ... %d].\n", (clp->size()));
       return Rcpp::DataFrame::create( );
     } else {
       std::vector<double> time;
       std::vector<double> intensity;
-      ChromatogramPtr c = clp->chromatogram(whichChrom, true);
+      // correct index from 1-based (R) to 0-based indexing (C++)
+      ChromatogramPtr c = clp->chromatogram(whichChrom - 1, true);
       vector<TimeIntensityPair> pairs;
       c->getTimeIntensityPairs (pairs);
 
@@ -909,12 +912,13 @@ Rcpp::DataFrame RcppPwiz::getChromatogramHeaderInfo (Rcpp::IntegerVector whichCh
 
     for (int i = 0; i < N_chrom; i++) {
       int current_chrom = whichChrom[i];
-      if (current_chrom < 0 || current_chrom > N) {
+      if (current_chrom < 1 || current_chrom > N) {
 	Rf_warningcall(R_NilValue, "Provided index out of bounds.");
 	Rcpp::Rcerr << "Provided index out of bounds" << std::endl;
       }
       ChromatogramPtr ch = clp->chromatogram(current_chrom - 1, false);
       chromatogramId[i] = ch->id;
+      // retain 1-based index for the chromatogram to return to R
       chromatogramIndex[i] = current_chrom;
       CVParam param = ch->cvParamChild(MS_scan_polarity);
       polarity[i] = (param.cvid==MS_negative_scan ? 0 : (param.cvid==MS_positive_scan ? +1 : -1 ) );

@@ -11,6 +11,7 @@ test_chromatograms1 <- function() {
     checkIdentical(nrow(chromatogram(x, 136L)), 527L)
     checkIdentical(nrow(chromatogram(x, 137L)), 567L)
     checkIdentical(nrow(chromatogram(x, 138L)), 567L)
+    close(x)
 }
 
 test_chromatograms2 <- function() {
@@ -20,6 +21,7 @@ test_chromatograms2 <- function() {
     checkIdentical(nChrom(x), 1L)
     checkIdentical(tic(x), chromatogram(x, 1L))
     checkIdentical(nrow(tic(x)), 7534L)
+    close(x)
 }
 
 test_individual_chromatogramHeader <- function() {
@@ -40,6 +42,16 @@ test_individual_chromatogramHeader <- function() {
     checkEquals(sum(is.na(ch$precursorIsolationWindowTargetMZ)), 1)
     checkEquals(sum(is.na(ch$productIsolationWindowTargetMZ)), 1)
     checkEquals(nrow(ch), 1)
+    tryCatch({
+        chromatogramHeader(x, 0)
+    }, error = function(e) {
+        checkTrue(grepl("Index out of bounds", e$message))
+    })
+    tryCatch({
+        chromatogramHeader(x, 139)
+    }, error = function(e) {
+        checkTrue(grepl("Index out of bounds", e$message))
+    })
     close(x)
 }
 
