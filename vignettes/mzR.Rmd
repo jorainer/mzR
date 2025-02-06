@@ -80,8 +80,10 @@ matrices or a single matrix if one spectrum is queried.
 
 Access to the chromatogram(s) is done using the `chromatogram` (or
 `chromatograms`) function, that return one (or a list of)
-data.frames. See `?chromatogram` for details. This functionality is
-only available with the `pwiz` backend.
+data.frames. See `?chromatogram` for details. Chromatogram header information 
+is available via the `chromatogramHeader` function that returns one (or
+a list of) data.frames. See `?chromatogramHeader` for details. This 
+functionality is only available with the `pwiz` backend.
 
 ## Identification result access
 

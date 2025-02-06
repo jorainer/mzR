@@ -1,3 +1,7 @@
+CHANGES IN VERSION 2.41.3
+-------------------------
+o Fixed off-by-one indexing issue with index access for chromatogramHeader vs chromatogram. Fixes #302. Thanks Nils Hoffmann !
+
 CHANGES IN VERSION 2.41.2
 -------------------------
 o Report also electron beam energy (MS:1003410) for EAD data.

@@ -150,7 +150,7 @@ setMethod("tic", "mzRpwiz",
           function(object, ...) {
               if (nChrom(object) < 1)
                   stop("No chromatogram data available.")
-              object@backend$getChromatogramsInfo(0L)
+              object@backend$getChromatogramsInfo(1L)
           })
 
 setMethod("chromatograms", "mzRpwiz",
@@ -173,8 +173,7 @@ setMethod("chromatogram", "mzRpwiz",
               chrom <- as.integer(chrom)
               if (min(chrom) < 1 | max(chrom) > n)
                   stop("Index out of bound [", 1, ":", n, "].")
-              ## Update index to match original indices at the C-level
-              chrom <- chrom - 1L
+              # chromatogram index is adjusted in the backend function
               if (length(chrom) == 1 & !all) {
                   ans <- object@backend$getChromatogramsInfo(chrom)
               } else {
@@ -192,10 +191,11 @@ setMethod("chromatogramHeader", "mzRpwiz",
               } else {
                   stopifnot(is.numeric(chrom))
                   n <- nChrom(object)
-                  if (min(chrom) < 1 || max(chrom) > n)
-                      stop("Index out of bound [", 1, ":", n, "]")
-                  chrom <- chrom -1L
-                  res <- object@backend$getChromatogramHeaderInfo(chrom)
+
+                  if (min(chrom) < 1 | max(chrom) > n)
+                    stop("Index out of bound [", 1, ":", n, "]")
+                  # chromatogram index is adjusted in the backend function
+                  res <- object@backend$getChromatogramHeaderInfo(as.integer(chrom))
               }
               res$chromatogramId <- as.character(res$chromatogramId)
               res
