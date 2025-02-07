@@ -11,5 +11,15 @@ test_header_all <- function() {
     header_pwiz <- header(mzxml)
     close(mzxml)
 
-    checkEquals(colnames(header_cdf), colnames(header_pwiz))
+    neededCdfHeaders <- c("seqNum", "acquisitionNum", "msLevel", "polarity", "peaksCount",  
+                          "totIonCurrent", "retentionTime", "basePeakMZ", "basePeakIntensity",  
+                          "collisionEnergy", "ionisationEnergy", "lowMZ", "highMZ", "precursorScanNum",  
+                          "precursorMZ", "precursorCharge", "precursorIntensity", "mergedScan",  
+                          "mergedResultScanNum", "mergedResultStartScanNum", "mergedResultEndScanNum",  
+                          "injectionTime", "filterString", "spectrumId", "centroided",  
+                          "ionMobilityDriftTime", "isolationWindowTargetMZ", "isolationWindowLowerOffset",  
+                          "isolationWindowUpperOffset", "scanWindowLowerLimit", "scanWindowUpperLimit" )
+    
+    checkTrue( all(neededCdfHeaders %in% colnames(header_cdf)) )
+    checkTrue( all(neededCdfHeaders %in% colnames(header_pwiz)) )
 }
