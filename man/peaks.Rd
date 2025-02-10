@@ -51,9 +51,9 @@
 
  get3Dmap(object, scans, lowMz, highMz, resMz, ...)
 
- \S4method{chromatogram}{mzRpwiz}(object, chrom)
+ \S4method{chromatogram}{mzRpwiz}(object, chrom, drop = TRUE)
 
- \S4method{chromatograms}{mzRpwiz}(object, chrom)  ## same as chromatogram
+ \S4method{chromatograms}{mzRpwiz}(object, chrom, drop = TRUE)  ## same as chromatogram
 
  \S4method{chromatogramHeader}{mzRpwiz}(object, chrom)
 

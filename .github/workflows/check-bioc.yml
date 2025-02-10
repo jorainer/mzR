@@ -127,7 +127,7 @@ jobs:
           ## https://mac.r-project.org/bin/darwin17/x86_64/
           ## The path might need to be updated depending on the macOS version.
           curl -O https://mac.r-project.org/bin/darwin17/x86_64/openssl-3.3.2-darwin.17-x86_64.tar.xz
-          tar fvxm openssl-3.3.2-darwin.17-x86_64.tar.xz -C /
+          tar -xvmpf openssl-3.3.2-darwin.17-x86_64.tar.xz -C /
           rm openssl-3.3.2-darwin.17-x86_64.tar.xz
           
       - name: Install Windows system dependencies
