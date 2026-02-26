@@ -2,14 +2,19 @@ Package: mzR
 Type: Package
 Title: parser for netCDF, mzXML and mzML and mzIdentML files
        (mass spectrometry data)
-Version: 2.41.3
+Version: 2.45.1
 Author: Bernd Fischer, Steffen Neumann, Laurent Gatto, Qiang Kou, Johannes Rainer
 Authors@R: c(
     person("Steffen", "Neumann", email="sneumann@ipb-halle.de", role=c("aut","cre")),
     person("Laurent", "Gatto", email="laurent.gatto@uclouvain.be", role=c("aut")),
     person("Qiakng", "Kou", email="qkou@umail.iu.edu", role=c("aut")),
     person("David","Rauh",email="drauh@ipb-halle.de", role=c("ctb")),
-    person("Sascha","Manier",email="sascha.manier@uni-saarland.de", role=c("ctb"))
+    person("Sascha","Manier",email="sascha.manier@uni-saarland.de", role=c("ctb")),
+    person(given = "Adriano",
+           family = "Rutz",
+           email = "adafede@gmail.com",
+           role = c("ctb"),
+           comment = c(ORCID = "0000-0003-0443-9902"))
     )
 Description: mzR provides a unified API to the common file formats and
         parsers available for mass spectrometry data. It comes with a
@@ -47,4 +52,4 @@ URL: https://github.com/sneumann/mzR/
 BugReports: https://github.com/sneumann/mzR/issues/
 biocViews: ImmunoOncology, Infrastructure, DataImport, Proteomics, Metabolomics,
         MassSpectrometry
-RoxygenNote: 6.0.1
+RoxygenNote: 7.3.3

@@ -117,11 +117,10 @@ Rcpp::List RcppPwiz::getInstrumentInfo ( )
 						  Rcpp::_["analyzer"]      = "",
 						  Rcpp::_["detector"]      = "",
 						  Rcpp::_["software"]      = "",
-						  Rcpp::_["sample"]		  = "",
-						  Rcpp::_["source"]		  = ""
+						  Rcpp::_["sample"]	   = "",
+						  Rcpp::_["source"]	   = ""
 						  ) ;
             }
-
 	  isInCacheInstrumentInfo = TRUE;
         }
       return(instrumentInfo);
@@ -133,11 +132,18 @@ Rcpp::List RcppPwiz::getInstrumentInfo ( )
 int RcppPwiz::getAcquisitionNumber(string id, size_t index) const
 {
   // const SpectrumIdentity& si = msd->run.spectrumListPtr->spectrumIdentity(index);
-  string scanNumber = id::translateNativeIDToScanNumber(nativeIdFormat, id);
-  if (scanNumber.empty())
-    return static_cast<int>(index) + 1;
-  else
-    return lexical_cast<int>(scanNumber);
+  try
+    {
+      string scanNumber = id::translateNativeIDToScanNumber(nativeIdFormat, id);
+      if (scanNumber.empty())
+	return static_cast<int>(index) + 1;
+      else
+	return lexical_cast<int>(scanNumber);
+    }
+  catch(const std::exception& e)
+    {
+      return static_cast<int>(index) + 1;
+    }
 }
 
 // Using this function instead of pwiz translateNativeIDToScanNumber because
@@ -329,6 +335,8 @@ Rcpp::DataFrame RcppPwiz::getScanHeaderInfo (Rcpp::IntegerVector whichScan) {
     header[i++] = Rcpp::wrap(basePeakIntensity);
     names.push_back("collisionEnergy");
     header[i++] = Rcpp::wrap(collisionEnergy);
+    names.push_back("electronBeamEnergy");
+    header[i++] = Rcpp::wrap(electronBeamEnergy);
     names.push_back("ionisationEnergy");
     header[i++] = Rcpp::wrap(ionisationEnergy);
     names.push_back("lowMZ");
@@ -371,8 +379,6 @@ Rcpp::DataFrame RcppPwiz::getScanHeaderInfo (Rcpp::IntegerVector whichScan) {
     header[i++] = Rcpp::wrap(scanWindowLowerLimit);
     names.push_back("scanWindowUpperLimit");
     header[i++] = Rcpp::wrap(scanWindowUpperLimit);
-    names.push_back("electronBeamEnergy");
-    header[i++] = Rcpp::wrap(electronBeamEnergy);
     header.attr("names") = names;
 
     return header;
@@ -679,6 +685,7 @@ void RcppPwiz::addSpectrumList(MSData& msd,
   Rcpp::NumericVector basePeakMZ = spctr_header["basePeakMZ"];
   Rcpp::NumericVector basePeakIntensity = spctr_header["basePeakIntensity"];
   Rcpp::NumericVector collisionEnergy = spctr_header["collisionEnergy"];
+  Rcpp::NumericVector electronBeamEnergy = spctr_header["electronBeamEnergy"];
   Rcpp::NumericVector ionisationEnergy = spctr_header["ionisationEnergy"];
   Rcpp::NumericVector lowMZ = spctr_header["lowMZ"];
   Rcpp::NumericVector highMZ = spctr_header["highMZ"];
@@ -719,6 +726,7 @@ void RcppPwiz::addSpectrumList(MSData& msd,
   // precursorIntensity numeric    $precursorIntensity
   // precursorCharge integer       $precursorCharge
   // collisionEnergy numeric       $collisionEnergy
+  // electronBeamEnergy numeric    $electronBeamEnergy
 
   // Now filling with new data
   shared_ptr<SpectrumListSimple> spectrumList(new SpectrumListSimple);
@@ -747,8 +755,10 @@ void RcppPwiz::addSpectrumList(MSData& msd,
     spct.set(MS_lowest_observed_m_z, lowMZ[i], MS_m_z);
     spct.set(MS_highest_observed_m_z, highMZ[i], MS_m_z);
     spct.set(MS_base_peak_m_z, basePeakMZ[i], MS_m_z);
-    spct.set(MS_base_peak_intensity, basePeakIntensity[i],
-	     MS_number_of_detector_counts);
+    if (!Rcpp::NumericVector::is_na(basePeakIntensity[i])) {
+      spct.set(MS_base_peak_intensity, basePeakIntensity[i],
+               MS_number_of_detector_counts);
+    }
     spct.set(MS_total_ion_current, totIonCurrent[i]);
     // TODO:
     // [X] seqNum: number observed in file.
@@ -786,16 +796,31 @@ void RcppPwiz::addSpectrumList(MSData& msd,
       // precursor scan is not available (e.g. after MS level filtering).
       spct.precursors.resize(1);
       Precursor& prec = spct.precursors.front();
-      if (collisionEnergy[i] != 0) {
-	prec.activation.set(MS_collision_induced_dissociation);
-	prec.activation.set(MS_collision_energy, collisionEnergy[i],
-			    UO_electronvolt);
+      if (!std::isnan(collisionEnergy[i]) && collisionEnergy[i] != 0) {
+        prec.activation.set(MS_collision_induced_dissociation);
+        prec.activation.set(MS_collision_energy, collisionEnergy[i],
+        UO_electronvolt);
+      }
+      // EAD
+      if (!std::isnan(electronBeamEnergy[i]) && electronBeamEnergy[i] != 0) {
+        prec.activation.set(MS_electron_activated_dissociation);
+        prec.activation.set(MS_electron_beam_energy, electronBeamEnergy[i],
+        UO_electronvolt);
       }
       prec.selectedIons.resize(1);
-      prec.selectedIons[0].set(MS_selected_ion_m_z, precursorMZ[i], MS_m_z);
-      prec.selectedIons[0].set(MS_peak_intensity, precursorIntensity[i],
-			       MS_number_of_detector_counts);
-      prec.selectedIons[0].set(MS_charge_state, precursorCharge[i]);
+      // Only set values if they are not NaN
+      if (!std::isnan(precursorMZ[i])) {
+        prec.selectedIons[0].set(MS_selected_ion_m_z, precursorMZ[i], MS_m_z);
+      }
+      
+      if (!std::isnan(precursorIntensity[i])) {
+        prec.selectedIons[0].set(MS_peak_intensity, precursorIntensity[i],
+                                 MS_number_of_detector_counts);
+      }
+      
+      if (!std::isnan(precursorCharge[i])) {
+        prec.selectedIons[0].set(MS_charge_state, precursorCharge[i]);
+      }
       // Get the spectrumId of the precursor. Assuming that precursorScanNum is
       // linked to the acquisitionNum of the precursor.
       // This seems to be correct, since both the acquisitionNum and the
@@ -812,11 +837,15 @@ void RcppPwiz::addSpectrumList(MSData& msd,
       }
       // isolation window
       if (!Rcpp::NumericVector::is_na(isolationWindowTargetMZ[i])) {
-	prec.isolationWindow.set(MS_isolation_window_target_m_z, isolationWindowTargetMZ[i]);
-	prec.isolationWindow.set(MS_isolation_window_lower_offset, isolationWindowLowerOffset[i]);
-	prec.isolationWindow.set(MS_isolation_window_upper_offset, isolationWindowUpperOffset[i]);
+        prec.isolationWindow.set(MS_isolation_window_target_m_z, isolationWindowTargetMZ[i]);
+        if (!Rcpp::NumericVector::is_na(isolationWindowLowerOffset[i])) {
+          prec.isolationWindow.set(MS_isolation_window_lower_offset, isolationWindowLowerOffset[i]);
+          }
+        if (!Rcpp::NumericVector::is_na(isolationWindowUpperOffset[i])) {
+          prec.isolationWindow.set(MS_isolation_window_upper_offset, isolationWindowUpperOffset[i]);
+          }
+        }
       }
-    }
     // [X] collisionEnergy
     // [ ] ionisationEnergy
     // [X] precursorScanNum
@@ -875,8 +904,8 @@ Rcpp::DataFrame RcppPwiz::getChromatogramsInfo( int whichChrom )
 	intensity.push_back(p.intensity);
       }
 
-      chromatogramsInfo = Rcpp::DataFrame::create(Rcpp::_["time"] = time,
-						  Rcpp::_[c->id]  = intensity);
+      chromatogramsInfo = Rcpp::DataFrame::create(Rcpp::_["rtime"] = time,
+						  Rcpp::_["intensity"] = intensity);
 
     }
     return(chromatogramsInfo);

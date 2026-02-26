@@ -11,16 +11,28 @@ test_chromatograms1 <- function() {
     checkIdentical(nrow(chromatogram(x, 136L)), 527L)
     checkIdentical(nrow(chromatogram(x, 137L)), 567L)
     checkIdentical(nrow(chromatogram(x, 138L)), 567L)
+    chr <- chromatogram(x, 138L)
+    checkTrue(is.data.frame(chr))
+    checkIdentical(colnames(chr), c("rtime", "intensity"))
+    chr1 <- chromatogram(x, 138L, drop = FALSE)
+    checkTrue(is.list(chr1))
+    checkEquals(chr, chr1[[1L]])
     close(x)
 }
 
 test_chromatograms2 <- function() {
+    f <- MsDataHub::X20171016_POOL_POS_1_105.134.mzML()
     f <- proteomics(full.names = TRUE,
                     pattern = "TMT_Erwinia_1uLSike_Top10HCD_isol2_45stepped_60min_01.mzML.gz")
     x <- openMSfile(f, backend = "pwiz")
+    checkIdentical(nChrom(x), 0L)
+    close(x)
+    
+    f <- MsDataHub::PestMix1_DDA.mzML()
+    x <- openMSfile(f, backend = "pwiz")
     checkIdentical(nChrom(x), 1L)
     checkIdentical(tic(x), chromatogram(x, 1L))
-    checkIdentical(nrow(tic(x)), 7534L)
+    checkIdentical(nrow(tic(x)), 7603L)
     close(x)
 }
 
@@ -62,9 +74,9 @@ test_chromatogramHeader_indexing <- function() {
         checkTrue(grepl("Index out of bound", e$message))
     })
 
+    all_chrom <- chromatogram(x)
     chrom2 <- chromatogram(x, 2)
-    ch2SafeChromId <- make.names(ch2$chromatogramId)
-    checkEquals(ch2SafeChromId, colnames(chrom2)[2])
+    checkEquals(all_chrom[[2]], chrom2)
 
     close(x)
 }
